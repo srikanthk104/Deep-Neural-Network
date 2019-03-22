@@ -1,0 +1,152 @@
+#Calculation of cholestor using Deep neural network when similarity between input data is more than 75%
+#Defining Pre required functions:
+def scaling(x):
+    m=x.mean()
+    n=x.size
+    d=((x-m)**2).sum()
+    sd=(d/(n-1))**0.5
+    return ((x-m)/sd)
+
+def nonlin(x, deriv=False):
+    if (deriv==True):
+        return x*(1-x)
+    return 1/(1+np.exp(-x))
+#reading from file path
+f=open("C:/Users/DELL/Desktop/R/chol.txt")
+h=f.readline()
+#reading header
+lines=f.readlines()
+#reading all lines and taking 3 input parameters
+a=[]
+wt=[]
+h=[]
+chol=[]
+k=[]
+for v in lines:
+    w=v.strip().split(",")
+    a.append(float(w[0]))
+    wt.append(float(w[1]))
+    h.append(float(w[2]))
+    k.append(str(w[3]))
+#target variable is in string so converting into labels
+    ch=0
+    if w[-1]=="low":
+        ch=1
+    elif w[-1]=="medium":
+        ch=2
+    elif w[-1]=="high":
+        ch=3
+    chol.append(ch)
+#Labels are in nuemeric so converting into Binaryarray,since target variable is polynomial
+
+def binaryarray(x,n):
+    ar=np.zeros(n)
+    ar[x]=1
+    return(ar)
+#importing numpy library
+import numpy as np
+#Converting all given inputs into numpyarrays
+a=np.array(a)
+wt=np.array(wt)
+h=np.array(h)
+#Applying scaling since given inputs are not with more weightage
+#Already we have scaling function defined above that we are using below
+#in this example, taking 3 input parameters
+sa=scaling(a)
+swt=scaling(wt)
+sh=scaling(h)
+#def input matrix
+x=np.c_[sa,swt,sh]
+np.random.seed(3)
+#use of rnp.andom.seed is that it will keep same weights irrespective of number of iterations
+#to get medium weights, multiplying with 2 and subtracting with -1
+
+syn0=2*np.random.random((3,5))-1
+syn1=2*np.random.random((5,7))-1
+syn2=2*np.random.random((7,5))-1
+syn3=2*np.random.random((5,4))-1
+def train(x,y,iterations,conv=0.0000001,syn0,syn1,syn2,syn3):
+#taking intitial conergence is 0.0000001 and pe=0,x is input matrix,y is target,syn0-syn4 are weight matrices
+      pe=0
+  for j in range (iterations):
+    L0=X
+    L1=nonlin(L0.dot(syn0))
+    L2=nonlin(L1.dot(syn1))
+    L3=nonlin(L2.dot(syn2))
+    L4=nonlin(L3.dot(syn3))
+    L4_error=Y-L4
+    ce=np.mean((np.abs(L4_error))**2)
+    converge=abs(pe-ce)
+#when error reaches convergence,breaking number of iterations
+    if converge<=0.00001:
+        print("number of iterations",j+1)
+        break
+        pe=ce
+#printing error at every 100 iterations and this is not fixed, it varies from scenario to scenario
+    if (j%100==0):
+        print("error",ce)
+    L4_delta=L4_error*nonlin(L4, deriv=True)
+    L3_error=L4_delta.dot(syn3.T)
+    L3_delta=L3_error*nonlin(L3, deriv=True)
+    L2_error=L3_delta.dot(syn2.T)
+    L2_delta=L2_error*nonlin(L2, deriv=True)
+    L1_error=L2_delta.dot(syn1.T)
+    L1_delta=L1_error*nonlin(L1, deriv=True)
+    syn0+= L0.T.dot(L1_delta)
+    syn1+=L1.T.dot(L2_delta)
+    syn2+= L2.T.dot(L3_delta)
+    syn3+=L3.T.dot(L4_delta)
+    return syn0+,syn1+,syn2+,syn3+
+    #Now wecan keep all input parameters in below function and run
+
+def train(x,y,iterations,conv=0.0000001,syn0,syn1,syn2,syn3)
+
+#after certain no of iterations, after reaching min error, upadted weights wiilbe produced
+#new unpdated weights are syn0+,syn1+,syn2+ and syn3+
+    L1=nonlin(L0.dot(syn0+))
+    L2=nonlin(L1.dot(syn1+))
+    L3=nonlin(L2.dot(syn2+))
+    L4=nonlin(L3.dot(syn3+))
+    
+
+#Here L4 is predicted label
+#Here syn0+,syn1+,syn2+,syn3+ are adjusted weights
+
+   labels=[]
+#Ouput is probability values, so making <0.5 is as zero and making >0.5 is as 1
+   for v in L4:
+     v[v<0.5]=0
+     v[v>0.5]=1
+     print(v)
+
+#preparing output matrix
+#Output is in Binaryaaray so converting into labels
+   v=[]
+   for v in v:
+      bar=binaryarray(v,4)
+      v.append(bar)
+#Converting labels into strings as given in input data
+   label="normal"
+   if v[1]==1:
+        label="low"
+   if v[2]==1:
+        label="medium"
+   if v[3]==1:
+        label="high"
+   labels.append(label)
+  Ycap=np.vstack(labels)
+  print(Ycap)
+#function for checking accuracy is in 2 ways
+#Number 1 way is:
+from sklearn.metrics import accuracy_score
+   accuracy=accuracy_score(y,ycap)
+    print(accuracy)
+#Number 2 is in traditional way
+   def accuracy(y,ycap):
+      r=y==ycap
+      pcnt=(r[r==T]).size
+      n=y.size()
+      return pcnt/n*100
+#now we can call y and ycap in following function 
+     accuracy=accuracy(y,ycap)
+      print(accuracy)
